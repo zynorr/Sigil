@@ -62,11 +62,13 @@ docs/security/         Privacy and security boundaries
 Requirements: Node.js 20+ and npm.
 
 ```sh
+git clone https://github.com/zynorr/Sigil.git
+cd Sigil
 npm ci
 npm run dev:server
 ```
 
-In a second terminal:
+In a second terminal, from the same repository directory:
 
 ```sh
 npm run dev:web
@@ -108,6 +110,7 @@ npm test
 npm run typecheck
 npm run lint
 npm run format:check
+npm run docs:check
 npm run build
 ```
 
