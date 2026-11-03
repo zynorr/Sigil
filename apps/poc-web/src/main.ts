@@ -38,7 +38,7 @@ function render(): void {
         <div class="privacy-note"><span>◎</span><p><strong>Honest privacy note</strong><br>Your address is visible to this app. Reusing it on another service can link the accounts.</p></div>
         <footer><span>Sigil POC · Testnet only</span><span>Not production-audited</span></footer>
       </section>
-      <div class="fineprint">A signature proves control of an address—not anonymity, ownership of holdings, or an unlinkable identity.</div>
+      <div class="fineprint">Address control does not prove anonymity, holdings, or unlinkability.</div>
     </main>`;
   document
     .querySelector<HTMLButtonElement>("#action")

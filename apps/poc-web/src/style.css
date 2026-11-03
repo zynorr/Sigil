@@ -212,13 +212,18 @@ footer {
   letter-spacing: 0.04em;
 }
 .fineprint {
+  display: block;
+  flex: 0 1 480px;
   width: min(100%, 480px);
   max-width: 100%;
+  min-width: 0;
   text-align: center;
   margin: 12px auto 25px;
   line-height: 1.5;
   letter-spacing: 0.02em;
+  white-space: normal;
   overflow-wrap: anywhere;
+  word-break: normal;
 }
 .account {
   padding: 16px 0;
