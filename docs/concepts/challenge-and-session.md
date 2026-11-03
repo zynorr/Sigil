@@ -2,7 +2,7 @@
 
 ## Challenge lifecycle
 
-1. Browser sends `GET /auth/challenge` with the exact configured `Origin` and accepts the `HttpOnly` pre-auth cookie.
+1. Browser sends `GET /auth/challenge` with an `Origin` exactly matching configured `APP_ORIGIN` and accepts the `HttpOnly` pre-auth cookie.
 2. Server creates a fresh random context ID, signs it with a process-local HMAC key, generates a 24-byte random nonce and a random request ID, and stores their context/expiry binding.
 3. Server returns `{ nonce, requestId, expiresInMs }`. The page passes these to `connectWithProof`.
 4. The wallet composes and signs the statement. The SDK returns a `ConnectProof` with the exact message plus parsed fields and `serverIssued` metadata.
@@ -13,6 +13,6 @@ The in-memory `consume` operation is synchronous and single-use within one Node.
 
 ## Session lifecycle
 
-The server creates a cryptographically random opaque token, stores its address/network/expiry in memory, and returns it as `HttpOnly`, `SameSite=Lax` cookie. `GET /api/me` looks up the cookie server-side. Expired sessions are deleted when read. `POST /auth/logout` revokes the token and clears the cookie.
+The server creates a cryptographically random opaque token, stores its address/network/expiry in memory, and returns it as `HttpOnly`, `SameSite=Lax` cookie. `GET /api/me` looks up the cookie server-side. Expired sessions are deleted when read. `POST /auth/logout` revokes the token and clears the session cookie. The separate pre-auth context cookie remains until its short challenge TTL so the UI can replay the exact proof and show the nonce-consumed rejection. The challenge record has been removed, but the authenticated session remains valid until expiry or logout.
 
 There is no JWT, persistence, refresh token, or multi-instance session support. A server restart loses sessions. The HMAC context key is generated when `createApp` is called and is not persisted.

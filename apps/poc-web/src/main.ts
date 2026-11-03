@@ -18,6 +18,8 @@ let provider: BeldexProvider | null = null;
 let client: BeldexWeb3 | null = null;
 let state: State = "checking";
 let account = "";
+let lastProof: ConnectProof | null = null;
+let replayMessage = "";
 let message = "Looking for the Beldex Wallet extension…";
 let networkLabel = "Testnet";
 let walletVersion = "unknown";
@@ -31,7 +33,7 @@ function render(): void {
         <h1>One proof.<br><span>Your account.</span></h1>
         <p class="intro">Sign in to this demo by proving control of a Beldex address. Sigil does not request your balance, transaction history, seed phrase or private keys.</p>
         <div class="status" role="status" aria-live="polite"><span class="pulse ${state}"></span><div><strong>${labelFor(state)}</strong><p>${escapeHtml(message)}</p></div></div>
-        ${state === "authenticated" ? `<div class="account"><span>AUTHENTICATED ADDRESS</span><code>${escapeHtml(account)}</code><span>WALLET ${escapeHtml(walletVersion)}</span><pre id="protected">Server session verified.</pre><button id="me">Refresh protected route</button></div>` : ""}
+        ${state === "authenticated" ? `<div class="account"><span>AUTHENTICATED ADDRESS</span><code>${escapeHtml(account)}</code><span>WALLET ${escapeHtml(walletVersion)}</span><pre id="protected">Server session verified.</pre><button id="me">Refresh protected route</button><button class="secondary" id="replay" ${lastProof ? "" : "disabled"}>Replay same proof (security test)</button><pre id="replay-result">${escapeHtml(replayMessage)}</pre></div>` : ""}
         ${state === "error" ? `<div class="error" role="alert">${escapeHtml(message)}</div>` : ""}
         <button class="primary" id="action" ${["checking", "connecting", "challenge", "signing", "verifying"].includes(state) ? "disabled" : ""}>${buttonFor(state)}</button>
         ${state === "authenticated" ? '<button class="secondary" id="logout">Log out</button>' : ""}
@@ -49,6 +51,9 @@ function render(): void {
   document
     .querySelector<HTMLButtonElement>("#me")
     ?.addEventListener("click", () => void checkProtected());
+  document
+    .querySelector<HTMLButtonElement>("#replay")
+    ?.addEventListener("click", () => void replayLastProof());
 }
 
 function labelFor(s: State): string {
@@ -132,8 +137,14 @@ async function action(): Promise<void> {
     const challengeResponse = await fetch("/auth/challenge", {
       credentials: "include",
     });
-    if (!challengeResponse.ok)
-      throw new Error("Challenge endpoint unavailable.");
+    if (!challengeResponse.ok) {
+      const errorBody = (await challengeResponse.json().catch(() => ({}))) as {
+        error?: string;
+      };
+      throw new Error(
+        `Challenge request failed (${challengeResponse.status}): ${errorBody.error ?? challengeResponse.statusText}`,
+      );
+    }
     const challenge = (await challengeResponse.json()) as {
       nonce: string;
       requestId: string;
@@ -151,6 +162,8 @@ async function action(): Promise<void> {
       "Submitting exact signed statement for independent server verification.";
     render();
     const proof = result.proof as ConnectProof;
+    lastProof = proof;
+    replayMessage = "";
     const verification = await fetch("/auth/verify", {
       method: "POST",
       credentials: "include",
@@ -211,7 +224,24 @@ async function logout(): Promise<void> {
   await fetch("/auth/logout", { method: "POST", credentials: "include" });
   state = "disconnected";
   account = "";
+  lastProof = null;
+  replayMessage = "";
   message = "Session revoked. Connect to sign in again.";
+  render();
+}
+
+async function replayLastProof(): Promise<void> {
+  if (!lastProof) return;
+  const response = await fetch("/auth/verify", {
+    method: "POST",
+    credentials: "include",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify(lastProof),
+  });
+  const result = (await response.json()) as { error?: string };
+  replayMessage = response.ok
+    ? "Unexpected: replay was accepted. Stop and investigate."
+    : `Replay rejected (${response.status}): ${result.error ?? "unknown error"}`;
   render();
 }
 

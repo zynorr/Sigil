@@ -28,21 +28,23 @@
 
 ## Implemented mitigations
 
-| Threat                         | Current control                                                                                                                             |
-| ------------------------------ | ------------------------------------------------------------------------------------------------------------------------------------------- |
-| Forged/altered signature       | SigV1 verification over exact message bytes; invalid key and malformed signature checks.                                                    |
-| Generic sign-message forgery   | Wallet reserves auth prefix; server still validates signature and all fields.                                                               |
-| Cross-origin proof             | Wallet-origin binding plus exact configured domain and request Origin checks.                                                               |
-| Cross-network/account mismatch | Statement network and address prefix checked; address must match proof field.                                                               |
-| Unknown/replayed nonce         | Server issues nonce/request ID bound to an HMAC-authenticated pre-auth cookie; synchronous single-use consume after signature verification. |
-| Nonce race                     | Synchronous memory-store consume permits one winner in one Node isolate; deterministic integration test races proof submissions.            |
-| Expired/future proof           | Expiry rejected at exact `exp`; future `iat` has bounded 30-second allowance; maximum proof lifetime one hour.                              |
-| Session theft/fixation         | Opaque random server-managed cookie, HttpOnly, SameSite=Lax, expiry, logout revocation; random HMAC-bound pre-auth context.                 |
-| Oversized/malformed input      | Request body cap, strict statement parser, field and address/signature bounds.                                                              |
+| Threat                          | Current control                                                                                                                                                                                                                                                  |
+| ------------------------------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| Forged/altered signature        | SigV1 verification over exact message bytes; invalid key and malformed signature checks.                                                                                                                                                                         |
+| Generic sign-message forgery    | Wallet reserves auth prefix; server still validates signature and all fields.                                                                                                                                                                                    |
+| Cross-origin proof              | Wallet-origin binding plus exact configured domain and required Origin checks on challenge/verify/logout.                                                                                                                                                        |
+| Cross-network/account mismatch  | Statement network and address prefix checked; address must match proof field.                                                                                                                                                                                    |
+| Unknown/replayed nonce          | Server issues nonce/request ID bound to an HMAC-authenticated pre-auth cookie; synchronous single-use consume after signature verification. Pre-auth cookie remains temporarily to demonstrate same-proof replay rejection; consumed challenge entry is removed. |
+| Nonce race                      | Synchronous memory-store consume permits one winner in one Node isolate; deterministic integration test races proof submissions.                                                                                                                                 |
+| Expired/future proof            | Expiry rejected at exact `exp`; future `iat` has bounded 30-second allowance; maximum proof lifetime one hour.                                                                                                                                                   |
+| Session theft/fixation          | Opaque random server-managed cookie, HttpOnly, SameSite=Lax, expiry, logout revocation; random HMAC-bound pre-auth context.                                                                                                                                      |
+| Oversized/malformed input       | Request body cap, strict statement parser, field and address/signature bounds.                                                                                                                                                                                   |
+| Pending-challenge memory growth | Expired challenges are pruned on issuance; a hard 10,000-pending-entry cap returns 503 when full. This is a memory bound, not rate limiting.                                                                                                                     |
 
 ## Residual risks / unsupported guarantees
 
 - Memory nonce/session stores are single-process and ephemeral; restart loses state, and multi-instance replay safety is absent.
+- Challenge issuance has no per-IP/per-origin rate limiting; add appropriate edge controls before production use even with the pending-entry cap.
 - HMAC key is generated per app process and not persisted; this is POC-only.
 - The reference has no durable session backend, formal CSRF token system, rate limiting, or reverse-proxy trust policy.
 - Tests use deterministic test-only keys and synthetic statements for integration. A CLI fixture is not a wallet-generated authentication proof.

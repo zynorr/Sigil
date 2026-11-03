@@ -17,10 +17,13 @@ export interface ChallengeStore {
 
 /** Single-process POC store. Synchronous consume is atomic within one JS isolate only. */
 export class MemoryChallengeStore implements ChallengeStore {
+  static readonly MAX_PENDING_CHALLENGES = 10_000;
   private readonly challenges = new Map<string, ChallengeRecord>();
 
   issue(record: ChallengeRecord): void {
     if (this.challenges.has(record.nonce)) throw new Error("nonce collision");
+    if (this.challenges.size >= MemoryChallengeStore.MAX_PENDING_CHALLENGES)
+      throw new Error("challenge store capacity reached");
     this.challenges.set(record.nonce, record);
   }
 

@@ -7,6 +7,50 @@ const statement = (nonce: string, rid: string) =>
   `beldex-auth-v1 domain=https://app.example uri=https://app.example/ address=9vudUCJcsCW1gNhERJKdWVRD8e1TyJPVY295XMuQNiZnAe4oU7F5vgF3Ueo7gDCyc6h6UYGSbTiPZFt7CcoF1ymaUhXR9es network=testnet nonce=${nonce} iat=1780000000000 exp=1780000300000 rid=${rid}`;
 
 describe("POC HTTP authentication flow", () => {
+  it("allows same-origin GET clients without Origin but rejects a supplied foreign Origin", async () => {
+    const app = createApp({
+      domain: "https://app.example",
+      network: "testnet",
+      challengeTtlMs: 300_000,
+      sessionTtlMs: 60_000,
+      cookieSecure: false,
+    });
+    expect((await app.request("/auth/challenge")).status).toBe(200);
+    expect(
+      (
+        await app.request("/auth/challenge", {
+          headers: { origin: "https://attacker.example" },
+        })
+      ).status,
+    ).toBe(403);
+  });
+
+  it("returns capacity unavailable rather than growing pending challenges without bound", async () => {
+    const challenges = new MemoryChallengeStore();
+    for (let i = 0; i < MemoryChallengeStore.MAX_PENDING_CHALLENGES; i++) {
+      challenges.issue({
+        nonce: `nonce-${String(i).padStart(12, "0")}`,
+        contextId: "context",
+        expiresAt: Number.MAX_SAFE_INTEGER,
+        requestId: `rid-${String(i).padStart(8, "0")}`,
+      });
+    }
+    const app = createApp({
+      domain: "https://app.example",
+      network: "testnet",
+      challengeTtlMs: 300_000,
+      sessionTtlMs: 60_000,
+      cookieSecure: false,
+      challenges,
+      clock: () => 1,
+    });
+    const response = await app.request("/auth/challenge", {
+      headers: { origin: "https://app.example" },
+    });
+    expect(response.status).toBe(503);
+    expect((await response.json()).error).toBe("CHALLENGE_CAPACITY");
+  });
+
   it("issues challenges, validates proof and protects/revokes session", async () => {
     let now = 1_780_000_000_000;
     const app = createApp({
@@ -145,6 +189,32 @@ describe("POC HTTP authentication flow", () => {
       body: JSON.stringify({}),
     });
     expect(response.status).toBe(401);
+  });
+
+  it("rejects oversized proof bodies while reading the request", async () => {
+    const app = createApp({
+      domain: "https://app.example",
+      network: "testnet",
+      challengeTtlMs: 300_000,
+      sessionTtlMs: 60_000,
+      cookieSecure: false,
+    });
+    const issued = await app.request("/auth/challenge", {
+      headers: { origin: "https://app.example" },
+    });
+    const contextCookie = issued.headers.get("set-cookie")!.split(";")[0]!;
+    const oversized = JSON.stringify({ message: "x".repeat(17_000) });
+    const response = await app.request("/auth/verify", {
+      method: "POST",
+      headers: {
+        origin: "https://app.example",
+        cookie: contextCookie,
+        "content-type": "application/json",
+      },
+      body: oversized,
+    });
+    expect(response.status).toBe(413);
+    expect((await response.json()).error).toBe("PROOF_TOO_LARGE");
   });
 
   it.each([

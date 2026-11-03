@@ -58,6 +58,26 @@ describe("memory stores", () => {
     ).toBe(false);
   });
 
+  it("rejects new challenges at its documented pending capacity", () => {
+    const store = new MemoryChallengeStore();
+    for (let i = 0; i < MemoryChallengeStore.MAX_PENDING_CHALLENGES; i++) {
+      store.issue({
+        nonce: `nonce-${String(i).padStart(12, "0")}`,
+        contextId: "context",
+        expiresAt: 500,
+        requestId: `rid-${String(i).padStart(8, "0")}`,
+      });
+    }
+    expect(() =>
+      store.issue({
+        nonce: "nonce-over-capacity",
+        contextId: "context",
+        expiresAt: 500,
+        requestId: "rid-over-capacity",
+      }),
+    ).toThrow("challenge store capacity reached");
+  });
+
   it("expires and revokes sessions", () => {
     const store = new MemorySessionStore();
     store.create("token", {

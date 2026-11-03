@@ -29,8 +29,56 @@ export interface AppConfig {
 
 const CONTEXT_COOKIE = "sigil_pre_auth";
 const SESSION_COOKIE = "sigil_session";
+const MAX_PROOF_BODY_BYTES = 16 * 1024;
 const randomToken = (bytes = 32): string =>
   randomBytes(bytes).toString("base64url");
+
+type BoundedJsonResult =
+  | { readonly ok: true; readonly value: unknown }
+  | { readonly ok: false; readonly reason: "invalid" | "too_large" };
+
+async function readBoundedJson(request: Request): Promise<BoundedJsonResult> {
+  const declaredLength = request.headers.get("content-length");
+  if (declaredLength !== null) {
+    const parsedLength = Number(declaredLength);
+    if (Number.isFinite(parsedLength) && parsedLength > MAX_PROOF_BODY_BYTES)
+      return { ok: false, reason: "too_large" };
+  }
+
+  if (!request.body) return { ok: false, reason: "invalid" };
+  const reader = request.body.getReader();
+  const chunks: Uint8Array[] = [];
+  let totalBytes = 0;
+  try {
+    for (;;) {
+      const { done, value } = await reader.read();
+      if (done) break;
+      totalBytes += value.byteLength;
+      if (totalBytes > MAX_PROOF_BODY_BYTES) {
+        await reader.cancel();
+        return { ok: false, reason: "too_large" };
+      }
+      chunks.push(value);
+    }
+  } catch {
+    return { ok: false, reason: "invalid" };
+  } finally {
+    reader.releaseLock();
+  }
+
+  const bytes = new Uint8Array(totalBytes);
+  let offset = 0;
+  for (const chunk of chunks) {
+    bytes.set(chunk, offset);
+    offset += chunk.byteLength;
+  }
+  try {
+    const text = new TextDecoder("utf-8", { fatal: true }).decode(bytes);
+    return { ok: true, value: JSON.parse(text) as unknown };
+  } catch {
+    return { ok: false, reason: "invalid" };
+  }
+}
 
 export function createApp(config: AppConfig): Hono {
   const clock = config.clock ?? Date.now;
@@ -86,7 +134,12 @@ export function createApp(config: AppConfig): Hono {
     const nonce = randomToken(24);
     const requestId = randomBytes(16).toString("hex");
     const expiresAt = now + config.challengeTtlMs;
-    challenges.issue({ nonce, contextId, expiresAt, requestId });
+    challenges.prune(now);
+    try {
+      challenges.issue({ nonce, contextId, expiresAt, requestId });
+    } catch {
+      return c.json({ error: "CHALLENGE_CAPACITY" }, 503);
+    }
     setCookie(c, CONTEXT_COOKIE, contextCookie, {
       httpOnly: true,
       secure: config.cookieSecure,
@@ -100,18 +153,28 @@ export function createApp(config: AppConfig): Hono {
   app.post("/auth/verify", async (c) => {
     if (c.req.header("origin") !== config.domain)
       return c.json({ error: "ORIGIN_REJECTED" }, 403);
+    if (
+      !c.req
+        .header("content-type")
+        ?.toLowerCase()
+        .startsWith("application/json")
+    )
+      return c.json({ error: "INVALID_PROOF" }, 415);
+    const parsedBody = await readBoundedJson(c.req.raw);
+    if (!parsedBody.ok) {
+      return c.json(
+        {
+          error:
+            parsedBody.reason === "too_large"
+              ? "PROOF_TOO_LARGE"
+              : "INVALID_PROOF",
+        },
+        parsedBody.reason === "too_large" ? 413 : 400,
+      );
+    }
+    const proof = parsedBody.value;
     const contextId = verifyContextCookie(getCookie(c, CONTEXT_COOKIE));
     if (!contextId) return c.json({ error: "CHALLENGE_CONTEXT_MISSING" }, 401);
-
-    let proof: unknown;
-    try {
-      const body = await c.req.text();
-      if (body.length > 16_384)
-        return c.json({ error: "PROOF_TOO_LARGE" }, 413);
-      proof = JSON.parse(body) as unknown;
-    } catch {
-      return c.json({ error: "INVALID_PROOF" }, 400);
-    }
     if (!proof || typeof proof !== "object" || Array.isArray(proof))
       return c.json({ error: "INVALID_PROOF" }, 400);
     const p = proof as Record<string, unknown>;
@@ -188,7 +251,9 @@ export function createApp(config: AppConfig): Hono {
       network: statement.network,
       expiresAt,
     });
-    deleteCookie(c, CONTEXT_COOKIE, { path: "/" });
+    // Keep the HttpOnly pre-auth context until its short challenge TTL so the
+    // client can replay the same proof and observe the consumed-nonce rejection.
+    // The challenge tuple is removed atomically, so the cookie alone cannot auth.
     setCookie(c, SESSION_COOKIE, session, {
       httpOnly: true,
       secure: config.cookieSecure,

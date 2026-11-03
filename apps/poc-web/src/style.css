@@ -163,6 +163,10 @@ h1 span {
   cursor: pointer;
   font-weight: 600;
 }
+.account button:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
 .primary {
   background: #91dfbc;
   color: #09120e;
@@ -248,6 +252,9 @@ footer {
   color: #9ddbbf;
   overflow: auto;
   font-size: 11px;
+}
+#replay-result:empty {
+  display: none;
 }
 .error {
   overflow-wrap: anywhere;

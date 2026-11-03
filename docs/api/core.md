@@ -28,6 +28,8 @@ Extracts the spend key from the address and validates the SigV1 signature over U
 - `consume({ nonce, contextId, requestId, now })` succeeds once only if the tuple matches and challenge is unexpired.
 - `prune(now)` removes expired records.
 
+The store refuses new entries at 10,000 pending challenges. The HTTP handler prunes expired entries before issuing; if still full, it returns `503 CHALLENGE_CAPACITY`.
+
 Atomicity is only within the single JavaScript isolate because `consume` is synchronous. Do not share this store across server instances.
 
 ## `MemorySessionStore`
