@@ -1,0 +1,8 @@
+{
+  "source": "Beldex-Coin/beldex-wallet-extension test/sign-message.test.mjs at f8f4014aa3c2d357a2b48b8069e012b6d129f59a",
+  "kind": "beldex-wallet-cli SigV1 signature fixture; not an auth challenge or testnet wallet demo",
+  "address": "9vudUCJcsCW1gNhERJKdWVRD8e1TyJPVY295XMuQNiZnAe4oU7F5vgF3Ueo7gDCyc6h6UYGSbTiPZFt7CcoF1ymaUhXR9es",
+  "message": "\"beldex-asset-ownership|v1|56e4bae7df73d7ce0881d214032536cad34bf515e0ed670c524188dd9cc540fa|62b806dd4aabcb04|1786948487|8b008a9dc5cf31ca|490b37a671a2ac25c3aa088c9592f287\"",
+  "signature": "SigV18njAqA6BoPdfpP2QxkLEqDTb36uuSMU3m1fjFZL12cTtfppHSg92b8kf7a2srWNYS1D2JWeT4d2MA7JoRQwwzbiu",
+  "spendPublicKey": "62b806dd4aabcb040f03f3a4485bde90bcb611ea9d357706cfb055365c086939"
+}

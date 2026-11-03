@@ -1,0 +1,40 @@
+{
+  "name": "sigil-poc",
+  "version": "0.1.0",
+  "private": true,
+  "type": "module",
+  "engines": {
+    "node": ">=20"
+  },
+  "scripts": {
+    "dev:server": "tsx watch apps/poc-server/src/index.ts",
+    "dev:web": "vite --host 127.0.0.1",
+    "build": "tsc -p tsconfig.json && vite build",
+    "typecheck": "tsc --noEmit",
+    "test": "vitest run",
+    "test:watch": "vitest",
+    "format": "prettier --write .",
+    "format:check": "prettier --check .",
+    "docs:check": "node scripts/check-doc-links.mjs",
+    "lint": "eslint .",
+    "start": "node dist/apps/poc-server/src/index.js"
+  },
+  "dependencies": {
+    "@bdxi/web3js": "1.0.2",
+    "@noble/curves": "1.9.7",
+    "@noble/hashes": "1.8.0",
+    "@hono/node-server": "1.14.4",
+    "hono": "4.7.11"
+  },
+  "devDependencies": {
+    "@types/node": "22.15.30",
+    "@typescript-eslint/eslint-plugin": "8.33.1",
+    "@typescript-eslint/parser": "8.33.1",
+    "eslint": "9.28.0",
+    "prettier": "3.5.3",
+    "tsx": "4.19.4",
+    "typescript": "5.8.3",
+    "vite": "6.3.5",
+    "vitest": "3.2.4"
+  }
+}

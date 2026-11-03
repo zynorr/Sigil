@@ -1,0 +1,260 @@
+@import url("https://fonts.googleapis.com/css2?family=DM+Mono:wght@400;500&family=DM+Sans:wght@400;500;600;700&display=swap");
+
+:root {
+  color-scheme: dark;
+  font-family: "DM Sans", system-ui, sans-serif;
+  background: #0b0d12;
+  color: #f2f4f8;
+  font-synthesis: none;
+}
+* {
+  box-sizing: border-box;
+}
+body {
+  margin: 0;
+  min-width: 320px;
+  min-height: 100vh;
+  background: radial-gradient(ellipse at 50% 18%, #17202a 0, #0b0d12 55%);
+}
+button {
+  font: inherit;
+}
+.shell {
+  width: min(100% - 36px, 1080px);
+  margin: auto;
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+.topbar {
+  width: 100%;
+  height: 86px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  border-bottom: 1px solid #ffffff13;
+}
+.brand {
+  color: #fff;
+  text-decoration: none;
+  display: flex;
+  gap: 12px;
+  align-items: center;
+  letter-spacing: 0.22em;
+  font-size: 13px;
+  font-weight: 700;
+}
+.mark {
+  width: 32px;
+  height: 32px;
+  display: grid;
+  place-items: center;
+  border: 1px solid #92e4c1;
+  color: #92e4c1;
+  font-family: "DM Mono", monospace;
+  font-size: 18px;
+}
+.environment,
+.eyebrow,
+.account > span,
+footer,
+.fineprint {
+  font-family: "DM Mono", monospace;
+  letter-spacing: 0.1em;
+  font-size: 10px;
+  color: #8b97a7;
+}
+.environment {
+  display: flex;
+  gap: 9px;
+  align-items: center;
+  color: #a9d8c4;
+}
+.environment i {
+  width: 6px;
+  height: 6px;
+  border-radius: 100%;
+  background: #71d6a6;
+  box-shadow: 0 0 12px #71d6a6;
+}
+.panel {
+  width: min(100%, 480px);
+  margin: auto;
+  padding: 46px 44px 28px;
+  background: #11151ccc;
+  border: 1px solid #ffffff19;
+  border-radius: 12px;
+  box-shadow: 0 24px 100px #0007;
+}
+.eyebrow {
+  color: #91d9bb;
+}
+h1 {
+  margin: 19px 0 12px;
+  font-size: clamp(38px, 8vw, 54px);
+  letter-spacing: -0.055em;
+  line-height: 1.04;
+  font-weight: 600;
+}
+h1 span {
+  color: #94dcbf;
+}
+.intro {
+  color: #a6afbd;
+  line-height: 1.65;
+  font-size: 14px;
+  margin: 0 0 26px;
+}
+.status {
+  min-height: 82px;
+  display: flex;
+  gap: 13px;
+  align-items: flex-start;
+  padding: 17px 15px;
+  background: #171d25;
+  border: 1px solid #29313b;
+  border-radius: 7px;
+  margin-bottom: 17px;
+}
+.status strong {
+  font-size: 13px;
+  font-weight: 600;
+}
+.status p {
+  color: #9ba6b4;
+  font-size: 12px;
+  line-height: 1.45;
+  margin: 5px 0 0;
+}
+.pulse {
+  width: 8px;
+  height: 8px;
+  flex: none;
+  margin-top: 4px;
+  border-radius: 50%;
+  background: #738094;
+}
+.pulse.authenticated {
+  background: #72d7a8;
+  box-shadow: 0 0 12px #72d7a8;
+}
+.pulse.error {
+  background: #f08080;
+}
+.primary,
+.secondary,
+.account button {
+  width: 100%;
+  height: 48px;
+  border-radius: 6px;
+  cursor: pointer;
+  font-weight: 600;
+}
+.primary {
+  background: #91dfbc;
+  color: #09120e;
+  border: 0;
+}
+.primary:hover:not(:disabled) {
+  background: #b4f0d3;
+}
+.primary:disabled {
+  opacity: 0.55;
+  cursor: wait;
+}
+.secondary,
+.account button {
+  background: transparent;
+  color: #dce3e9;
+  border: 1px solid #414c58;
+  margin-top: 10px;
+}
+.privacy-note {
+  display: flex;
+  gap: 11px;
+  padding: 14px 0 18px;
+  margin-top: 18px;
+  border-top: 1px solid #ffffff13;
+  color: #91d9bb;
+}
+.privacy-note p {
+  margin: 0;
+  font-size: 11px;
+  line-height: 1.55;
+  color: #929eac;
+}
+.privacy-note strong {
+  color: #d7e0e5;
+  font-weight: 500;
+}
+footer {
+  border-top: 1px solid #ffffff13;
+  padding-top: 15px;
+  width: 100%;
+  display: flex;
+  justify-content: space-between;
+  font-size: 9px;
+  letter-spacing: 0.04em;
+}
+.fineprint {
+  text-align: center;
+  margin: -28px 0 25px;
+  line-height: 1.5;
+  letter-spacing: 0.02em;
+}
+.account {
+  padding: 16px 0;
+}
+.account code {
+  display: block;
+  overflow-wrap: anywhere;
+  padding: 10px;
+  margin: 8px 0;
+  background: #0b0d12;
+  color: #d9e4df;
+  font:
+    11px "DM Mono",
+    monospace;
+}
+.account pre {
+  color: #9ddbbf;
+  overflow: auto;
+  font-size: 11px;
+}
+.error {
+  padding: 10px;
+  margin-bottom: 12px;
+  color: #ffadad;
+  background: #3c2025;
+  border-radius: 5px;
+  font-size: 12px;
+}
+:focus-visible {
+  outline: 2px solid #91dfbc;
+  outline-offset: 3px;
+}
+@media (max-width: 540px) {
+  .shell {
+    width: min(100% - 24px, 480px);
+  }
+  .topbar {
+    height: 66px;
+  }
+  .panel {
+    padding: 32px 22px 22px;
+    margin: 28px 0 44px;
+  }
+  .fineprint {
+    margin: -30px 0 20px;
+  }
+}
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    scroll-behavior: auto !important;
+    animation-duration: 0.01ms !important;
+    transition-duration: 0.01ms !important;
+  }
+}

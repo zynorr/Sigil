@@ -1,0 +1,22 @@
+node_modules/
+dist/
+coverage/
+.env
+.env.*
+!.env.example
+*.log
+*.tgz
+playwright-report/
+test-results/
+
+# Private, local-only funding/submission workspaces and correspondence.
+# Explicit local sibling submission workspace and common accidentally copied paths.
+*-Grant-Submission/
+Sigil-Grant-Submission/
+grant-submission/
+private-grant/
+grant-private/
+**/Beldex-correspondence*/
+**/reviewer-correspondence*/
+/docs/grant/
+/docs/research/REPOSITORY-ASSESSMENT.md
