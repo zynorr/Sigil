@@ -21,6 +21,7 @@ button {
 }
 .shell {
   width: min(100% - 36px, 1080px);
+  min-width: 0;
   margin: auto;
   min-height: 100vh;
   display: flex;
@@ -29,11 +30,15 @@ button {
 }
 .topbar {
   width: 100%;
-  height: 86px;
+  min-width: 0;
+  min-height: 86px;
+  height: auto;
   display: flex;
   align-items: center;
   justify-content: space-between;
+  gap: 12px;
   border-bottom: 1px solid #ffffff13;
+  flex-wrap: wrap;
 }
 .brand {
   color: #fff;
@@ -67,9 +72,11 @@ footer,
 }
 .environment {
   display: flex;
+  min-width: 0;
   gap: 9px;
   align-items: center;
   color: #a9d8c4;
+  white-space: nowrap;
 }
 .environment i {
   width: 6px;
@@ -80,6 +87,7 @@ footer,
 }
 .panel {
   width: min(100%, 480px);
+  min-width: 0;
   margin: auto;
   padding: 46px 44px 28px;
   background: #11151ccc;
@@ -92,7 +100,7 @@ footer,
 }
 h1 {
   margin: 19px 0 12px;
-  font-size: clamp(38px, 8vw, 54px);
+  font-size: clamp(30px, 8vw, 54px);
   letter-spacing: -0.055em;
   line-height: 1.04;
   font-weight: 600;
@@ -101,12 +109,14 @@ h1 span {
   color: #94dcbf;
 }
 .intro {
+  overflow-wrap: anywhere;
   color: #a6afbd;
   line-height: 1.65;
   font-size: 14px;
   margin: 0 0 26px;
 }
 .status {
+  min-width: 0;
   min-height: 82px;
   display: flex;
   gap: 13px;
@@ -118,10 +128,12 @@ h1 span {
   margin-bottom: 17px;
 }
 .status strong {
+  overflow-wrap: anywhere;
   font-size: 13px;
   font-weight: 600;
 }
 .status p {
+  overflow-wrap: anywhere;
   color: #9ba6b4;
   font-size: 12px;
   line-height: 1.45;
@@ -193,21 +205,28 @@ footer {
   padding-top: 15px;
   width: 100%;
   display: flex;
+  flex-wrap: wrap;
+  gap: 8px 16px;
   justify-content: space-between;
   font-size: 9px;
   letter-spacing: 0.04em;
 }
 .fineprint {
+  width: min(100%, 480px);
+  max-width: 100%;
   text-align: center;
-  margin: -28px 0 25px;
+  margin: 12px auto 25px;
   line-height: 1.5;
   letter-spacing: 0.02em;
+  overflow-wrap: anywhere;
 }
 .account {
   padding: 16px 0;
 }
 .account code {
   display: block;
+  max-width: 100%;
+  white-space: pre-wrap;
   overflow-wrap: anywhere;
   padding: 10px;
   margin: 8px 0;
@@ -218,11 +237,15 @@ footer {
     monospace;
 }
 .account pre {
+  max-width: 100%;
+  white-space: pre-wrap;
+  overflow-wrap: anywhere;
   color: #9ddbbf;
   overflow: auto;
   font-size: 11px;
 }
 .error {
+  overflow-wrap: anywhere;
   padding: 10px;
   margin-bottom: 12px;
   color: #ffadad;
@@ -239,14 +262,24 @@ footer {
     width: min(100% - 24px, 480px);
   }
   .topbar {
-    height: 66px;
+    min-height: 66px;
+    height: auto;
+    padding: 12px 0;
   }
   .panel {
     padding: 32px 22px 22px;
     margin: 28px 0 44px;
   }
+  h1 {
+    font-size: clamp(28px, 9vw, 42px);
+    overflow-wrap: anywhere;
+  }
+  .environment {
+    font-size: 9px;
+    letter-spacing: 0.06em;
+  }
   .fineprint {
-    margin: -30px 0 20px;
+    margin: 12px auto 20px;
   }
 }
 @media (prefers-reduced-motion: reduce) {

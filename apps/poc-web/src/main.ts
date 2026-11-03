@@ -32,7 +32,7 @@ function render(): void {
         <p class="intro">Sign in to this demo by proving control of a Beldex address. Sigil does not request your balance, transaction history, seed phrase or private keys.</p>
         <div class="status" role="status" aria-live="polite"><span class="pulse ${state}"></span><div><strong>${labelFor(state)}</strong><p>${escapeHtml(message)}</p></div></div>
         ${state === "authenticated" ? `<div class="account"><span>AUTHENTICATED ADDRESS</span><code>${escapeHtml(account)}</code><span>WALLET ${escapeHtml(walletVersion)}</span><pre id="protected">Server session verified.</pre><button id="me">Refresh protected route</button></div>` : ""}
-        ${state === "error" ? `<div class="error">${escapeHtml(message)}</div>` : ""}
+        ${state === "error" ? `<div class="error" role="alert">${escapeHtml(message)}</div>` : ""}
         <button class="primary" id="action" ${["checking", "connecting", "challenge", "signing", "verifying"].includes(state) ? "disabled" : ""}>${buttonFor(state)}</button>
         ${state === "authenticated" ? '<button class="secondary" id="logout">Log out</button>' : ""}
         <div class="privacy-note"><span>◎</span><p><strong>Honest privacy note</strong><br>Your address is visible to this app. Reusing it on another service can link the accounts.</p></div>
