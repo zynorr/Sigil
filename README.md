@@ -18,7 +18,7 @@ The proof reveals the Beldex address. Sigil does **not** provide anonymity, unli
 
 ```mermaid
 flowchart LR
-  Browser[Browser app] --> SDK[@bdxi/web3js]
+  Browser[Browser app] --> SDK["Beldex Web3 SDK"]
   SDK --> Wallet[Beldex Wallet]
   Browser -->|challenge / proof| Server[Sigil Hono server]
   Server --> Parser[Strict auth parser]

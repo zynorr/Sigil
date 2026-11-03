@@ -20,7 +20,7 @@ sequenceDiagram
 
 ```mermaid
 flowchart LR
-  UI[Browser UI] --> SDK[@bdxi/web3js]
+  UI[Browser UI] --> SDK["Beldex Web3 SDK"]
   SDK -->|wallet RPC| EXT[Beldex extension]
   UI -->|HTTP + cookies| API[Hono reference server]
   API --> PARSE[Strict statement parser]
